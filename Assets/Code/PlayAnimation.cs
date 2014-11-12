@@ -11,7 +11,6 @@ public class PlayAnimation : BTAction {
 	}
 
 	protected override void Enter () {
-		Debug.Log(_animationName);
 		Animator animator = database.GetComponent<Animator>();
 		animator.Play(_animationName);
 	}

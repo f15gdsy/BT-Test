@@ -18,15 +18,16 @@ public class MoveAttackAI : BTTree {
 	protected override void Init () {
 
 		// -------Prepare--------
-		// 1. initialize parent
+		// 1. Initialize parent
 		base.Init ();
 
-		BTConfiguration.ENABLE_LOG = true;
+		// 2. Enable BT framework's log for debug, optional
+		// BTConfiguration.ENABLE_LOG = true;
 
-		// 2. Create root
+		// 3. Create root, usually it's a priority selector
 		_root = new BTPrioritySelector();
 
-		// 3. Create the reusable nodes
+		// 4. Create the nodes for reuse later
 		BTParallel run = new BTParallel(BTParallel.ParallelFunction.Or);
 		{
 			run.AddChild(new DoRun(DESTINATION, speed));
@@ -35,8 +36,12 @@ public class MoveAttackAI : BTTree {
 
 
 		// -------Construct-------
+
 		// 3.1 Escape node
-		CheckInSight checkOrcInSight = new CheckInSight(sightForOrc, ORC_NAME);
+		CheckInSight checkOrcInSight = new CheckInSight(sightForOrc, ORC_NAME);		// precondition
+
+		// "Escape" serves as a parallel node
+		// "Or" means the parallel node ends when any of its children ends.
 		BTParallel escape = new BTParallel(BTParallel.ParallelFunction.Or, checkOrcInSight);
 		{
 			FindEscapeDestination findDestination = new FindEscapeDestination(ORC_NAME, DESTINATION, sightForOrc);
@@ -44,10 +49,12 @@ public class MoveAttackAI : BTTree {
 
 			escape.AddChild(run);
 		}
-		_root.AddChild(escape);
+		_root.AddChild(escape);		// Add node into root
+
 
 		// 3.2 Fight node
-		CheckInSight checkGoblinInSight = new CheckInSight(sightForGoblin, GOBLIN_NAME);
+		CheckInSight checkGoblinInSight = new CheckInSight(sightForGoblin, GOBLIN_NAME);	// precondition
+
 		BTSequence fight = new BTSequence(checkGoblinInSight);
 		{
 			BTParallel parallel = new BTParallel(BTParallel.ParallelFunction.Or);
@@ -59,10 +66,11 @@ public class MoveAttackAI : BTTree {
 			}
 			fight.AddChild(parallel);
 
-			CheckInSight checkGoblinInFightDistance = new CheckInSight(fightDistance, GOBLIN_NAME);
+			CheckInSight checkGoblinInFightDistance = new CheckInSight(fightDistance, GOBLIN_NAME);	// precondition
 			fight.AddChild(new PlayAnimation(FIGHT_ANIMATION, checkGoblinInFightDistance));
 		}
 		_root.AddChild(fight);
+
 
 		// 3.3 Idle node
 		_root.AddChild(new PlayAnimation(IDLE_ANIMATION));
