@@ -60,7 +60,7 @@ public class MoveAttackAI : BTTree {
 			fight.AddChild(parallel);
 
 			CheckInSight checkGoblinInFightDistance = new CheckInSight(fightDistance, GOBLIN_NAME);
-			fight.AddChild(new DoFight(checkGoblinInFightDistance));
+			fight.AddChild(new PlayAnimation(FIGHT_ANIMATION, checkGoblinInFightDistance));
 		}
 		_root.AddChild(fight);
 

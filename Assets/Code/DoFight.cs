@@ -16,10 +16,6 @@ public class DoFight : BTAction {
 		_animator = database.GetComponent<Animator>();
 	}
 
-	protected override void Enter () {
-		_animator.Play("Fight");
-	}
-
 	protected override BTResult Execute ()
 	{
 
