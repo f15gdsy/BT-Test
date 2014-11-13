@@ -24,8 +24,20 @@ public class DecisionAI : BTTree {
 
 
 		// 4. Create the nodes for reuse later
+		// Preconditions
+		CheckInSight checkOrcInSight = new CheckInSight(sightForOrc, Constants.GO_ORC);		// precondition
+		CheckInSight checkGoblinInSight = new CheckInSight(sightForGoblin, Constants.GO_GOBLIN);	// precondition
+
+		// Actions
 		ResetData<bool> clearEscape = new ResetData<bool>(Constants.SHOULD_ESCAPE, false);
 		ResetData<bool> clearFight = new ResetData<bool>(Constants.SHOULD_FIGHT, false);
+		ResetData<bool> shouldEscape = new ResetData<bool>(Constants.SHOULD_ESCAPE, true, false, checkOrcInSight);
+		ResetData<bool> shouldFight = new ResetData<bool>(Constants.SHOULD_FIGHT, true, false, checkGoblinInSight);
+
+
+		// 5. Set initial database data
+		database.SetData<bool>(Constants.SHOULD_ESCAPE, false);
+		database.SetData<bool>(Constants.SHOULD_FIGHT, false);
 
 
 		// -------Construct-------
@@ -33,29 +45,15 @@ public class DecisionAI : BTTree {
 		// 5.1 Clear all first
 		_root.AddChild(clearEscape);
 		_root.AddChild(clearFight);
-		clearEscape.name = "clear escape";
-		clearFight.name = "clear fight";
-
 
 		// 5.2 Decision Making
 		BTPrioritySelector situationSelector = new BTPrioritySelector();
 		{
 
 			// 5.2.1 Escape Decision
-			CheckInSight checkOrcInSight = new CheckInSight(sightForOrc, Constants.GO_ORC);		// precondition
-
-			database.SetData<bool>(Constants.SHOULD_ESCAPE, false);
-			ResetData<bool> shouldEscape = new ResetData<bool>(Constants.SHOULD_ESCAPE, true, false, checkOrcInSight);
-			shouldEscape.name = "should escape";
 			situationSelector.AddChild(shouldEscape);
 
-
 			// 5.2.2 Fight Decision
-			CheckInSight checkGoblinInSight = new CheckInSight(sightForGoblin, Constants.GO_GOBLIN);	// precondition
-
-			database.SetData<bool>(Constants.SHOULD_FIGHT, false);
-			ResetData<bool> shouldFight = new ResetData<bool>(Constants.SHOULD_FIGHT, true, false, checkGoblinInSight);
-			shouldFight.name = "should fight";
 			situationSelector.AddChild(shouldFight);
 		}
 		_root.AddChild(situationSelector);
