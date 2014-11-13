@@ -3,12 +3,6 @@ using System.Collections;
 using BT;
 
 public class MoveAttackAI : BTTree {
-	private static string DESTINATION = "Destination";
-	private static string ORC_NAME = "Orc";
-	private static string GOBLIN_NAME = "Goblin";
-	private static string RUN_ANIMATION = "Run";
-	private static string FIGHT_ANIMATION = "Fight";
-	private static string IDLE_ANIMATION = "Idle";
 
 	public float speed;
 	public float sightForOrc;
@@ -22,7 +16,8 @@ public class MoveAttackAI : BTTree {
 		base.Init ();
 
 		// 2. Enable BT framework's log for debug, optional
-		// BTConfiguration.ENABLE_LOG = true;
+		BTConfiguration.ENABLE_BTACTION_LOG = true;
+//		BTConfiguration.ENABLE_DATABASE_LOG = true;
 
 		// 3. Create root, usually it's a priority selector
 		_root = new BTPrioritySelector();
@@ -30,21 +25,21 @@ public class MoveAttackAI : BTTree {
 		// 4. Create the nodes for reuse later
 		BTParallel run = new BTParallel(BTParallel.ParallelFunction.Or);
 		{
-			run.AddChild(new DoRun(DESTINATION, speed));
-			run.AddChild(new PlayAnimation(RUN_ANIMATION));
+			run.AddChild(new DoRun(Constants.DESTINATION, speed));
+			run.AddChild(new PlayAnimation(Constants.ANIMATION_RUN));
 		}
 
 
 		// -------Construct-------
 
-		// 3.1 Escape node
-		CheckInSight checkOrcInSight = new CheckInSight(sightForOrc, ORC_NAME);		// precondition
+		// 5.1 Escape node
+		BTPreconditionBool shouldEscape = new BTPreconditionBool(Constants.SHOULD_ESCAPE, true);		// precondition
 
 		// "Escape" serves as a parallel node
 		// "Or" means the parallel node ends when any of its children ends.
-		BTParallel escape = new BTParallel(BTParallel.ParallelFunction.Or, checkOrcInSight);
+		BTParallel escape = new BTParallel(BTParallel.ParallelFunction.Or, shouldEscape);
 		{
-			FindEscapeDestination findDestination = new FindEscapeDestination(ORC_NAME, DESTINATION, sightForOrc);
+			FindEscapeDestination findDestination = new FindEscapeDestination(Constants.GO_ORC, Constants.DESTINATION, sightForOrc);
 			escape.AddChild(findDestination);
 
 			escape.AddChild(run);
@@ -52,27 +47,27 @@ public class MoveAttackAI : BTTree {
 		_root.AddChild(escape);		// Add node into root
 
 
-		// 3.2 Fight node
-		CheckInSight checkGoblinInSight = new CheckInSight(sightForGoblin, GOBLIN_NAME);	// precondition
+		// 5.2 Fight node
+		BTPreconditionBool shouldFight = new BTPreconditionBool(Constants.SHOULD_FIGHT, true);// precondition
 
-		BTSequence fight = new BTSequence(checkGoblinInSight);
+		BTSequence fight = new BTSequence(shouldFight);
 		{
 			BTParallel parallel = new BTParallel(BTParallel.ParallelFunction.Or);
 			{
-				FindToTargetDestination findToTargetDestination = new FindToTargetDestination(GOBLIN_NAME, DESTINATION, fightDistance * 0.9f);
+				FindToTargetDestination findToTargetDestination = new FindToTargetDestination(Constants.GO_GOBLIN, Constants.DESTINATION, fightDistance * 0.9f);
 				parallel.AddChild(findToTargetDestination);
 
 				parallel.AddChild(run);		// Reuse Run
 			}
 			fight.AddChild(parallel);
 
-			CheckInSight checkGoblinInFightDistance = new CheckInSight(fightDistance, GOBLIN_NAME);	// precondition
-			fight.AddChild(new PlayAnimation(FIGHT_ANIMATION, checkGoblinInFightDistance));
+			CheckInSight checkGoblinInFightDistance = new CheckInSight(fightDistance, Constants.GO_GOBLIN);	// precondition
+			fight.AddChild(new PlayAnimation(Constants.ANIMATION_FIGHT, checkGoblinInFightDistance));
 		}
 		_root.AddChild(fight);
 
 
-		// 3.3 Idle node
-		_root.AddChild(new PlayAnimation(IDLE_ANIMATION));
+		// 5.3 Idle node
+		_root.AddChild(new PlayAnimation(Constants.ANIMATION_IDLE));
 	}
 }
