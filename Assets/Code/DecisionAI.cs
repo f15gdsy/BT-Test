@@ -18,6 +18,8 @@ public class DecisionAI : BTTree {
 		
 		// 3. Create root, usually it's a priority selector
 		_root = new BTParallelFlexible();
+
+		// Set cooldown, so this BT tree will only tick every 1.5 seconds
 		_root.interval = 1.5f;
 
 
@@ -28,7 +30,7 @@ public class DecisionAI : BTTree {
 
 		// -------Construct-------
 
-		// 5.1 Clear all
+		// 5.1 Clear all first
 		_root.AddChild(clearEscape);
 		_root.AddChild(clearFight);
 		clearEscape.name = "clear escape";

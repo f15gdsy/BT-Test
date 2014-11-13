@@ -16,7 +16,7 @@ public class MoveAttackAI : BTTree {
 		base.Init ();
 
 		// 2. Enable BT framework's log for debug, optional
-		BTConfiguration.ENABLE_BTACTION_LOG = true;
+//		BTConfiguration.ENABLE_BTACTION_LOG = true;
 //		BTConfiguration.ENABLE_DATABASE_LOG = true;
 
 		// 3. Create root, usually it's a priority selector
