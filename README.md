@@ -17,3 +17,5 @@ It mainly demonstrates how AI code can be written using BT behavior tree framewo
  4. rest when there is no Goblin or Orc in sight.
 
 2. MoveAttackAI is where the behavior tree is constructed.
+
+3. How hierarchical behavior tree is constructed.
