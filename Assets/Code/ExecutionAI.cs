@@ -2,7 +2,7 @@
 using System.Collections;
 using BT;
 
-public class MoveAttackAI : BTTree {
+public class ExecutionAI : BTTree {
 
 	public float speed;
 	public float sightForOrc;
